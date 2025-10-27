@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 
@@ -8,6 +9,7 @@
 #define EMAIL_SIZE 71
 #define PHONE_SIZE 21
 #define ROLE_SIZE 31
+#define UNIT_SIZE 50
 
 typedef struct {
   int day;
@@ -45,6 +47,37 @@ void getCharInput(char *output) {
   getchar();
 }
 
+void getStringInput(char output[], int output_size) {
+  fgets(output, output_size, stdin);
+}
+
+Collaborator* verifyAndReallocateCollaborator(int *capacity, int size, Collaborator *vector) {
+  if (*capacity == size) {
+    *capacity = *capacity + UNIT_SIZE;
+    vector = (Collaborator *) realloc(vector, *capacity * sizeof(Collaborator));
+
+    if (vector == NULL) {
+      printf("Erro ao alocar memória!");
+      exit(1);
+    }
+  }
+
+  return vector;
+}
+
+int verifyIfCollaboratorExists(Collaborator *vector, int vector_size, char document[]) {
+  int index = -1;
+
+  for (int i = 0; i < vector_size; i++) {
+    if (vector[i].document_number == document) {
+      index = i;
+      break;
+    }
+  }
+
+  return index;
+}
+
 void printCollaboratorSubmenu() {
   printf("\n -=+ Submenu de Colaborador +=-\n\n");
   printf("   a) Registrar colaborador\n");
@@ -58,6 +91,15 @@ void printCollaboratorSubmenu() {
 void collaboratorSubmenu() {
   bool running = true;
   char option;
+  Collaborator *vector;
+  int capacity = UNIT_SIZE;
+  int size = 0;
+  vector = (Collaborator *) malloc(capacity * sizeof(Collaborator));
+
+  if (vector == NULL) {
+    printf("Erro ao alocar memória!");
+    exit(1);
+  }
 
   while (running) {
     printCollaboratorSubmenu();
@@ -65,8 +107,23 @@ void collaboratorSubmenu() {
     getCharInput(&option);
     printf("\n");
 
+    verifyAndReallocateCollaborator(&capacity, size, vector);
+
     switch(option) {
       case 'a':
+        char document[DOCUMENT_SIZE];
+        printf("Digite o documento: ");
+        getStringInput(document, DOCUMENT_SIZE);
+
+        int collaboratorIndex = verifyIfCollaboratorExists(vector, size, document);
+
+        if (collaboratorIndex == -1) {} // sucesso!
+
+        // Digite o nome:
+        // Digite a data de admissão:
+        // Digite o cargo:
+        // Digite o email:
+        // Digite o telefone:
         break;
       case 'b':
         break;
@@ -78,6 +135,7 @@ void collaboratorSubmenu() {
         break;
       case 'f':
         running = false;
+        free(vector);
         break;
       default:
         printf("   Opção inválida!");
