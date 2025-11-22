@@ -46,10 +46,17 @@ typedef struct
   int weekly_hours;
 } Participation;
 
+// void getCharInput(char *output)
+// {
+//   scanf("%c", output);
+//   getchar();
+// }
+
 void getCharInput(char *output)
 {
-  scanf("%c", output);
-  getchar();
+  char buffer[10];
+  fgets(buffer, sizeof(buffer), stdin);
+  *output = buffer[0];
 }
 
 void getTextInput(char *string, int length)
@@ -138,8 +145,8 @@ void collaboratorSubmenu()
   int size = UNIT_SIZE;
   int count = 0;
 
-  bool running = true;
-  char option, document[DOCUMENT_SIZE];
+  bool running = true, changed;
+  char option, document[DOCUMENT_SIZE], newDocument[DOCUMENT_SIZE];
   int index;
 
   collaboratorVector = (Collaborator *)malloc(size * sizeof(Collaborator));
@@ -159,7 +166,7 @@ void collaboratorSubmenu()
     if (count == size)
     {
       size = size + UNIT_SIZE;
-      reallocateCollaboratorVector(collaboratorVector, size);
+      collaboratorVector = reallocateCollaboratorVector(collaboratorVector, size);
     }
 
     switch (option)
@@ -213,7 +220,6 @@ void collaboratorSubmenu()
       }
       break;
     case 'c':
-      document[DOCUMENT_SIZE];
       printf("Digite o documento do colaborador que deseja procurar: ");
       getTextInput(document, DOCUMENT_SIZE);
 
@@ -230,6 +236,97 @@ void collaboratorSubmenu()
       }
       break;
     case 'd':
+      printf("Digite o documento do colaborador que deseja procurar: ");
+      getTextInput(document, DOCUMENT_SIZE);
+
+      index = findCollaborator(collaboratorVector, count, document);
+      changed = true;
+
+      if (index == -1)
+      {
+        printf("Não existe nenhum colaborador com este documento.");
+        changed = false;
+      }
+      else
+      {
+        printf("Colaborador encontrado!\n\n");
+
+        collaborator = collaboratorVector[index];
+        printCollaborator(collaborator);
+
+        printf("\nQual atributo deseja alterar?\n");
+        printf("a. Documento\n");
+        printf("b. Nome\n");
+        printf("c. Data de Admissão\n");
+        printf("d. Cargo\n");
+        printf("e. E-mail\n");
+        printf("f. Telefone\n\n");
+        printf("g. Voltar\n\n");
+
+        char modifyOption;
+
+        getCharInput(&modifyOption);
+
+        switch (modifyOption)
+        {
+        case 'a':
+          printf("Digite o documento: ");
+          getTextInput(newDocument, DOCUMENT_SIZE);
+
+          if (findCollaborator(collaboratorVector, count, newDocument) == -1)
+          {
+            strcpy(collaborator.document_number, newDocument);
+          }
+          else
+          {
+            printf("Já existe um colaborador com este documento!\n");
+            changed = false;
+          }
+          break;
+        case 'b':
+          printf("Digite o nome: ");
+          getTextInput(collaborator.name, NAME_SIZE);
+          break;
+        case 'c':
+          printf("Digite o dia de admissão: ");
+          scanf("%d", &collaborator.admission_date.day);
+
+          printf("Digite o mês de admissão: ");
+          scanf("%d", &collaborator.admission_date.month);
+
+          printf("Digite o ano de admissão: ");
+          scanf("%d", &collaborator.admission_date.year);
+          getchar();
+          break;
+        case 'd':
+          printf("Digite o cargo: ");
+          getTextInput(collaborator.role, ROLE_SIZE);
+          break;
+        case 'e':
+          printf("Digite o e-mail: ");
+          getTextInput(collaborator.email, EMAIL_SIZE);
+          break;
+        case 'f':
+          printf("Digite o telefone: ");
+          getTextInput(collaborator.phone, PHONE_SIZE);
+          break;
+        case 'g':
+          printf("Nenhuma modificação");
+          changed = false;
+          break;
+        default:
+          printf("Opção inválida!");
+          changed = false;
+          break;
+        }
+      }
+
+      if (changed)
+      {
+        printf("Colaborador alterado com sucesso!\n");
+        collaboratorVector[index] = collaborator;
+      }
+
       break;
     case 'e':
       printf("Digite o documento do colaborador que deseja procurar: ");
@@ -255,7 +352,8 @@ void collaboratorSubmenu()
 
           if (answer == 'S' || answer == 's')
           {
-            for (int i = index; i < count - 1; i++) {
+            for (int i = index; i < count - 1; i++)
+            {
               collaboratorVector[i] = collaboratorVector[i + 1];
             }
             count--;
